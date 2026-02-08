@@ -256,12 +256,6 @@ Nully incluye herramientas internas como:
 * listTools
 * addTool
 * fixError
-* readMemory
-* appendFile
-* deleteFile
-* createFolder
-* listFolder
-* getCurrentTime
 
 ---
 
