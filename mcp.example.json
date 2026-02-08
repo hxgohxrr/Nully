@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "Astro docs": {
+      "type": "http",
+      "url": "https://mcp.docs.astro.build/mcp",
+      "description": "Documentación oficial de Astro"
+    }
+  },
+  "capabilities": {
+    "web_search": true,
+    "shell": true
+  }
+}

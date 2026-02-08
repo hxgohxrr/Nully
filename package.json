@@ -1,0 +1,22 @@
+{
+  "name": "nully",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun build",
+    "dev": "bun run src/app.ts --watch",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/node": "^25.2.2",
+    "node-fetch": "^3.3.2",
+    "ollama": "^0.6.3"
+  }
+}
