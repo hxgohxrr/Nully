@@ -75,6 +75,13 @@ export function buildDefaultConfig(): nullyConfig {
       autoApproveTools: false,
       autoFixErrors: true,
     },
+    cognitive: {
+      enabled: true,
+      thoughtLoopEnabled: true,
+      dreamLoopEnabled: true,
+      thoughtIntervalMs: 300000,
+      inactivityThresholdMs: 120000
+    },
   };
 }
 

@@ -1,0 +1,85 @@
+{
+  "localName": "Nully",
+  "additionalPrompt": "",
+  "mcpFile": "./mcp.json",
+  "thinking": "medium",
+  "version": "0.0.1",
+  "ollamaModel": "gpt-oss",
+  "goals": [],
+  "tools": [
+    {
+      "name": "readFile",
+      "description": "Lee archivos locales de manera segura",
+      "capabilities": [
+        "leer archivos locales",
+        "obtener contenido de texto"
+      ]
+    },
+    {
+      "name": "writeFile",
+      "description": "Escribe contenido en un archivo local de manera segura",
+      "capabilities": [
+        "crear archivos",
+        "modificar archivos",
+        "guardar texto"
+      ]
+    },
+    {
+      "name": "execMany",
+      "description": "Ejecuta comandos permitidos en el sistema",
+      "capabilities": [
+        "ejecutar comandos de shell",
+        "obtener salida de comandos",
+        "automatizar tareas"
+      ]
+    },
+    {
+      "name": "webSearch",
+      "description": "Realiza búsquedas en la web",
+      "capabilities": [
+        "buscar información online",
+        "obtener resultados de páginas",
+        "resumir información"
+      ]
+    },
+    {
+      "name": "addTool",
+      "description": "Añade una nueva herramienta dinámica al sistema",
+      "capabilities": [
+        "crear herramientas nuevas",
+        "actualizar la config",
+        "import dinámico de tools"
+      ]
+    },
+    {
+      "name": "fixError",
+      "description": "Propone y aplica arreglos a errores de archivos",
+      "capabilities": [
+        "modificar archivos",
+        "reemplazar texto",
+        "corregir errores simples"
+      ]
+    },
+    {
+      "name": "listTools",
+      "description": "Lista todas las herramientas disponibles",
+      "capabilities": [
+        "ver herramientas existentes",
+        "obtener nombres y descripciones",
+        "consultar capacidades"
+      ]
+    }
+  ],
+  "DANGER": {
+    "agentWithoutLimits": false,
+    "autoApproveTools": false,
+    "autoFixErrors": true
+  },
+  "cognitive": {
+    "enabled": true,
+    "thoughtLoopEnabled": true,
+    "dreamLoopEnabled": true,
+    "thoughtIntervalMs": 300000,
+    "inactivityThresholdMs": 120000
+  }
+}

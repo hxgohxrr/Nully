@@ -7,6 +7,8 @@ import { c } from "./utils/colors";
 import { ensureConfig } from "./data/config";
 import { ensureModel, ensureOllama } from "./utils/ensureOllama";
 import { join } from "path";
+import { CognitiveManager } from "./cognitive/manager";
+import { isDreamCommand, executeDreamCycle } from "./utils/dreamCommand";
 
 const config = await ensureConfig("./nully.config.json");
 await ensureOllama();
@@ -25,16 +27,86 @@ console.log(
 );
 console.log(c.gray + "Tu app nullificada\n" + c.reset);
 
+// Inicializar sistema cognitivo si está habilitado
+let cognitiveManager: CognitiveManager | null = null;
+if (config.cognitive?.enabled) {
+  cognitiveManager = new CognitiveManager({
+    enabled: config.cognitive.enabled,
+    thoughtLoopEnabled: config.cognitive.thoughtLoopEnabled,
+    dreamLoopEnabled: config.cognitive.dreamLoopEnabled,
+    thoughtIntervalMs: config.cognitive.thoughtIntervalMs,
+    inactivityThresholdMs: config.cognitive.inactivityThresholdMs,
+    model: config.ollamaModel,
+  });
+  await cognitiveManager.initialize();
+  console.log(c.gray + `[${new Date().toLocaleTimeString()}] 🧠 Sistema cognitivo activado` + c.reset);
+}
+
 while (true) {
   const input = await ask(c.blue + "> " + c.reset);
   if (input === "exit") break;
+  
+  // Registrar actividad para el sistema cognitivo
+  cognitiveManager?.recordActivity();
+  
+  // Detectar comando de sueño
+  if (isDreamCommand(input)) {
+    await saveMessage("user", input);
+    
+    console.log(c.yellow + `[${new Date().toLocaleTimeString()}] 💤 ¿Quieres que entre en modo sueño?` + c.reset);
+    console.log(c.gray + "Consolidaré la memoria y generaré insights. Escribe algo para despertarme." + c.reset);
+    
+    const confirmation = await ask(c.yellow + "Confirmar (y/n): " + c.reset);
+    
+    if (confirmation.toLowerCase() === "s" || confirmation.toLowerCase() === "si" || confirmation.toLowerCase() === "yes" || confirmation.toLowerCase() === "y") {
+      console.log(c.cyan + `[${new Date().toLocaleTimeString()}] 😴 Entrando en modo sueño...` + c.reset);
+      
+      // Ejecutar ciclo de sueño manual
+      const dreamState = await executeDreamCycle(config.ollamaModel);
+      
+      // Guardar estado si hay cognitive manager
+      if (cognitiveManager) {
+        await cognitiveManager.addManualThought(
+          dreamState.thoughts[0]?.content || "Sueño completado",
+          "dream"
+        );
+      }
+      
+      // Mostrar el sueño
+      console.log(c.magenta + `\n[${new Date().toLocaleTimeString()}] 💭 Sueño:` + c.reset);
+      await typeWrite(c.gray + (dreamState.thoughts[0]?.content || "...") + c.reset);
+      console.log("\n");
+      
+      // Mostrar patrones detectados
+      if (dreamState.patterns.size > 0) {
+        console.log(c.cyan + `[${new Date().toLocaleTimeString()}] 🔍 Patrones detectados:` + c.reset);
+        for (const [pattern, count] of dreamState.patterns) {
+          console.log(c.gray + `  • ${pattern} (${count})` + c.reset);
+        }
+        console.log("");
+      }
+      
+      console.log(c.green + `[${new Date().toLocaleTimeString()}] ✨ Desperté. ¿En qué puedo ayudarte?` + c.reset);
+      
+      // Esperar input del usuario para "despertar"
+      await saveMessage("assistant", dreamState.thoughts[0]?.content || "He soñado y consolidado la memoria.");
+      continue;
+    } else {
+      console.log(c.gray + "Entendido, continúo despierto." + c.reset);
+      await saveMessage("assistant", "Entendido, continúo despierto.");
+      continue;
+    }
+  }
+  
   await saveMessage("user", input);
 
   const availableToolsResult = await tools.listTools();
   let availableTools: any[] = [];
   try {
     availableTools = JSON.parse(availableToolsResult.output);
-  } catch {}
+  } catch (err) {
+    console.log(c.red + `[${new Date().toLocaleTimeString()}] ⚠️ Error parseando tools: ${err}` + c.reset);
+  }
   const result = await think(input, config, { availableTools });
 
   console.log(

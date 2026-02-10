@@ -53,7 +53,7 @@ export async function parseJSONWithRepair(
     )
 
     const fix = await ollama.chat({
-      model: "gpt-oss",
+      model: config.ollamaModel,
       think: "low",
       messages: [
         {

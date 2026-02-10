@@ -1,6 +1,8 @@
 import { spawn } from "bun"
 import { c } from "./colors"
 
+let ollamaPid: number | null = null;
+
 async function commandExists(cmd: string): Promise<boolean> {
   try {
     const p = spawn([cmd, "--version"], {
@@ -28,11 +30,14 @@ async function isOllamaRunning(): Promise<boolean> {
 async function startOllama() {
   console.log(c.yellow + `[${new Date().toLocaleTimeString()}] 🚀 Iniciando Ollama...` + c.reset)
 
-  spawn(["ollama", "serve"], {
+  const proc = spawn(["ollama", "serve"], {
     stdout: "ignore",
     stderr: "ignore",
     detached: true,
   })
+  
+  // Guardar PID para cleanup posterior
+  ollamaPid = proc.pid;
 
   for (let i = 0; i < 10; i++) {
     await new Promise(r => setTimeout(r, 500))
@@ -41,6 +46,18 @@ async function startOllama() {
 
   return false
 }
+
+// Cleanup handler para matar Ollama al cerrar Nully
+process.on("exit", () => {
+  if (ollamaPid) {
+    try {
+      process.kill(ollamaPid);
+      console.log(c.gray + `[${new Date().toLocaleTimeString()}] 🛑 Ollama detenido` + c.reset);
+    } catch {
+      // Proceso ya no existe, ignorar
+    }
+  }
+});
 
 export async function ensureOllama() {
   if (!(await commandExists("ollama"))) {
@@ -77,7 +94,8 @@ export async function ensureModel(model = "gpt-oss") {
 
   if (!exists) {
     console.log(c.yellow + `[${new Date().toLocaleTimeString()}] ⬇️ Descargando modelo ${model}...` + c.reset)
-    spawn(["ollama", "pull", model], { stdout: "inherit", stderr: "inherit" })
+    const proc = spawn(["ollama", "pull", model], { stdout: "inherit", stderr: "inherit" })
+    await proc.exited;
   } else {
     console.log(c.green + `[${new Date().toLocaleTimeString()}] ✅ Modelo ${model} ya está descargado` + c.reset)
   }

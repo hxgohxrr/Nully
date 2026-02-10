@@ -37,7 +37,7 @@ export async function think(
   const mcp = await buildMCPContext(config);
 
   const thinking =
-    config.thinking === "auto" ? await classifyThinking(userInput) : config.thinking;
+    config.thinking === "auto" ? await classifyThinking(userInput, config.ollamaModel) : config.thinking;
 
   console.log(c.gray + `\n[thinking: ${thinking}]\n` + c.reset);
 
@@ -45,7 +45,8 @@ export async function think(
     try {
       const toolsResult = await listTools();
       context = { availableTools: toolsResult.success ? JSON.parse(toolsResult.output) : [] };
-    } catch {
+    } catch (err) {
+      console.log(c.yellow + `[${new Date().toLocaleTimeString()}] ⚠️ Error cargando tools: ${err}` + c.reset);
       context = { availableTools: [] };
     }
   }
@@ -92,7 +93,7 @@ TIENES QUE DEVOLVER SIEMPRE UN JSON, EXTRICTAMENTE EN ESE FORMATO, NUNCA RESPOND
 `;
 
   const res = await ollama.chat({
-    model: "gpt-oss",
+    model: config.ollamaModel,
     think: thinking,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },

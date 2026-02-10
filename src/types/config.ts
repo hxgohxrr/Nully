@@ -23,5 +23,13 @@ export type nullyConfig = {
         agentWithoutLimits: boolean,
         autoApproveTools: boolean,
         autoFixErrors: boolean
+    },
+    /** Configuración del sistema cognitivo autónomo */
+    cognitive?: {
+        enabled: boolean,
+        thoughtLoopEnabled: boolean,
+        dreamLoopEnabled: boolean,
+        thoughtIntervalMs: number,
+        inactivityThresholdMs: number
     }
 }

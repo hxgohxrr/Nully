@@ -2,9 +2,12 @@ import ollama from "ollama";
 
 type ThinkLevel = "low" | "medium" | "high"
 
-const classifyThinking = async (prompt: string): Promise<ThinkLevel> => {
+const classifyThinking = async (
+  prompt: string,
+  model = "gpt-oss"  // Parámetro configurable
+): Promise<ThinkLevel> => {
   const res = await ollama.generate({
-    model: "gpt-oss",
+    model,  // Usar parámetro en lugar de hardcodear
     prompt: `
 Decide reasoning level.
 Answer ONLY: low, medium or high.
